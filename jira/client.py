@@ -116,7 +116,7 @@ class JIRA(object):
 
     JIRA_BASE_URL = '{server}/rest/api/{rest_api_version}/{path}'
 
-    def __init__(self, server=None, options=None, basic_auth=None, oauth=None, validate=None, async=False, logging=True, impersonate_user=None):
+    def __init__(self, server=None, options=None, basic_auth=None, oauth=None, validate=None, async=False, logging=True):
         """
         Construct a JIRA client instance.
 
@@ -151,7 +151,6 @@ class JIRA(object):
             as anononymous it will fail to instanciate.
         :param async: To enable async requests for those actions where we implemented it, like issue update() or delete().
         Obviously this means that you cannot rely on the return code when this is enabled.
-        :param impersonate_user: when using OAuth, impersonate a user by adding a ``xoauth_requestor_id`` query parameter to all requests. 
         """
         if options is None:
             options = {}
@@ -178,7 +177,7 @@ class JIRA(object):
         self._try_magic()
 
         if oauth:
-            self._create_oauth_session(oauth, impersonate_user)
+            self._create_oauth_session(oauth)
         elif basic_auth:
             self._create_http_basic_session(*basic_auth)
         else:
@@ -1686,7 +1685,7 @@ class JIRA(object):
         self._session.verify = verify
         self._session.auth = (username, password)
 
-    def _create_oauth_session(self, oauth, impersonate_user=None):
+    def _create_oauth_session(self, oauth):
         verify = self._options['verify']
 
         from requests_oauthlib import OAuth1
@@ -1705,9 +1704,6 @@ class JIRA(object):
             self._session = requests.Session()
         self._session.verify = verify
         self._session.auth = oauth
-        
-        if impersonate_user is not None:
-            self._session.params = {'xoauth_requestor_id': impersonate_user}
 
     def _set_avatar(self, params, url, avatar):
         data = {

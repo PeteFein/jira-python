@@ -12,6 +12,7 @@ import logging
 import random
 import pprint
 import json
+import urllib
 
 from six import iteritems, string_types, text_type
 from six import print_ as print
@@ -91,6 +92,8 @@ class Resource(object):
 
         if isinstance(ids, string_types):
             ids = (ids,)
+
+        ids = tuple(urllib.quote_plus(i) for i in ids)
 
         if headers is None:
             headers = {}
